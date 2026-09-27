@@ -1,0 +1,15 @@
+.cartel-emergente.oculto {
+  display: none;
+}
+
+.cartel-emergente {
+  display: block;
+  /* El resto de tus estilos visuales (position, background, padding, etc.) */
+}
+
+.cartel-acciones {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}

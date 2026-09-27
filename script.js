@@ -1,3 +1,4 @@
+//######################################################################
 // Clase Carta
 class Carta {
     constructor(palo, valor) {
@@ -64,7 +65,7 @@ class Carta {
         }
     }
 }
-
+//######################################################################
 // Clase Mazo
 class Mazo {
   constructor() {
@@ -106,4 +107,102 @@ class Mazo {
   cartasRestantes() {
     return this.cartas.length;
   }
+}
+//######################################################################
+// Clase Jugador
+
+
+//######################################################################
+//######################################################################
+// cartel emergente Variables globales
+let cartelEmergente;
+let cartelTitulo;
+let cartelMensaje;
+let timerNotificacion;
+
+
+function crearCartelUI(contenedorPadre) {
+  cartelEmergente = document.createElement("div");
+  cartelEmergente.classList.add("cartel-emergente", "oculto");
+
+  cartelTitulo = document.createElement("h3");
+  cartelTitulo.classList.add("cartel-titulo");
+
+  cartelMensaje = document.createElement("p");
+  cartelMensaje.classList.add("cartel-mensaje");
+
+  cartelEmergente.appendChild(cartelTitulo);
+  cartelEmergente.appendChild(cartelMensaje);
+
+  contenedorPadre.appendChild(cartelEmergente);
+}
+
+function limpiarBotonesCartel() {
+  const contenedorBotones = cartelEmergente.querySelector(".cartel-acciones");
+  if (contenedorBotones) {
+    contenedorBotones.remove();
+  }
+}
+
+function mostrarNotificacion(titulo, mensaje, tiempo = 3000) {
+  clearTimeout(timerNotificacion);
+  limpiarBotonesCartel();
+
+  cartelTitulo.textContent = titulo;
+  cartelMensaje.textContent = mensaje;
+  cartelEmergente.classList.remove("oculto");
+
+  if (tiempo > 0) {
+    timerNotificacion = setTimeout(() => {
+      ocultarNotificacion();
+    }, tiempo);
+  }
+}
+
+function ocultarNotificacion() {
+  cartelEmergente.classList.add("oculto");
+  limpiarBotonesCartel();
+}
+
+function pedirConfirmacion(titulo, mensaje) {
+  return new Promise((resolve) => {
+    clearTimeout(timerNotificacion);
+    limpiarBotonesCartel();
+
+    cartelTitulo.textContent = titulo;
+    cartelMensaje.textContent = mensaje;
+
+    // Creación de contenedor de acciones
+    const contenedorBotones = document.createElement("div");
+    contenedorBotones.classList.add("cartel-acciones");
+
+    // Botón Confirmar
+    const btnConfirmar = document.createElement("button");
+    btnConfirmar.id = "btn-confirmar-cartel";
+    btnConfirmar.classList.add("btn-accion");
+    btnConfirmar.textContent = "Confirmar";
+
+    // Botón Cancelar
+    const btnCancelar = document.createElement("button");
+    btnCancelar.id = "btn-cancelar-cartel";
+    btnCancelar.classList.add("btn-accion", "borrar");
+    btnCancelar.textContent = "Cancelar";
+
+
+    contenedorBotones.appendChild(btnConfirmar);
+    contenedorBotones.appendChild(btnCancelar);
+    cartelEmergente.appendChild(contenedorBotones);
+
+    cartelEmergente.classList.remove("oculto");
+
+    btnConfirmar.onclick = () => {
+      ocultarNotificacion();
+      resolve(true);
+    };
+
+    btnCancelar.onclick = () => {
+      ocultarNotificacion();
+      resolve(false);
+    };
+  });
 }
