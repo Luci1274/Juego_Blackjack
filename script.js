@@ -1,79 +1,80 @@
-//######################################################################
-// Clase Carta
+// =========================================================================
+// 1. CLASES DEL JUEGO (MODELOS)
+// =========================================================================
+
 class Carta {
-    constructor(palo, valor) {
-        this.palo = palo;
-        this.valor = valor;
+  constructor(palo, valor) {
+    this.palo = palo;
+    this.valor = valor;
+  }
+
+  obtenerPuntos() {
+    if (this.valor === "A") {
+      return 11;
+    }
+    if (["J", "Q", "K"].includes(this.valor)) {
+      return 10;
+    }
+    return parseInt(this.valor);
+  }
+
+  descripcion() {
+    return `${this.valor} de ${this.palo}`;
+  }
+
+  // Genera el nodo HTML de la carta
+  crearElementoHTML(esOculta = false) {
+    const cartaDiv = document.createElement("div");
+    cartaDiv.classList.add("carta");
+
+    if (esOculta) {
+      cartaDiv.classList.add("oculta");
+      cartaDiv.textContent = "";
+      return cartaDiv;
     }
 
-    obtenerPuntos() {
-        if (this.valor === "A") {
-            return 11;
-        }
-        if (["J","Q","K"].includes(this.valor)) {
-            return 10;
-        }
-        return parseInt(this.valor);
+    if (this.palo === "Corazones" || this.palo === "Diamantes") {
+      cartaDiv.classList.add("roja");
+    } else {
+      cartaDiv.classList.add("negra");
     }
 
-    descripcion() {
-        return `${this.valor} de ${this.palo}`;
+    const valorSuperior = document.createElement("span");
+    valorSuperior.classList.add("carta-valor", "top");
+    valorSuperior.textContent = this.valor;
+
+    const paloCentro = document.createElement("span");
+    paloCentro.classList.add("carta-palo");
+    paloCentro.textContent = this.obtenerSimboloPalo();
+
+    const valorInferior = document.createElement("span");
+    valorInferior.classList.add("carta-valor", "bottom");
+    valorInferior.textContent = this.valor;
+
+    cartaDiv.appendChild(valorSuperior);
+    cartaDiv.appendChild(paloCentro);
+    cartaDiv.appendChild(valorInferior);
+
+    return cartaDiv;
+  }
+
+  obtenerSimboloPalo() {
+    switch (this.palo) {
+      case "Corazones": return "♥";
+      case "Diamantes": return "♦";
+      case "Tréboles":  return "♣";
+      case "Picas":     return "♠";
+      default:          return "";
     }
-
-    crearElementos(esOculta = false) {
-        const cartaDiv = document.createElement("div");
-        cartaDiv.classList.add("carta");
-
-        if (esOculta) {
-            cartaDiv.classList.add("oculta");
-            cartaDiv.textContent = "";
-            return cartaDiv;
-        }
-
-        if (this.palo === "Corazones" || this.palo === "Diamantes") {
-            cartaDiv.classList.add("roja");
-        } else {
-            cartaDiv.classList.add("negra");
-        }
-
-        const valorSuperior = document.createElement("span");
-        valorSuperior.classList.add("carta-valor", "top");
-        valorSuperior.textContent = this.valor;
-
-        const paloCentro = document.createElement("span");
-        paloCentro.classList.add("carta-palo");
-        paloCentro.textContent = this.obtenerSimboloPalo();
-
-        const valorInferior = document.createElement("span");
-        valorInferior.classList.add("carta-valor", "bottom");
-        valorInferior.textContent = this.valor;
-
-        cartaDiv.appendChild(valorSuperior);
-        cartaDiv.appendChild(paloCentro);
-        cartaDiv.appendChild(valorInferior);
-
-        return cartaDiv;
-    }
-    
-    obtenerSimboloPalo() {
-        switch (this.palo) {
-            case "Corazones": return "♥";
-            case "Diamantes": return "♦";
-            case "Tréboles":  return "♣";
-            case "Picas":     return "♠";
-            default:          return "";
-        }
-    }
+  }
 }
-//######################################################################
-// Clase Mazo
+
 class Mazo {
   constructor() {
     this.cartas = [];
     this.crearMazo();
   }
 
-  // Genera las 52 cartas
   crearMazo() {
     this.cartas = [];
     const palos = ["Corazones", "Diamantes", "Tréboles", "Picas"];
@@ -86,7 +87,6 @@ class Mazo {
     }
   }
 
-  // Algoritmo Fisher-Yates para barajar
   barajar() {
     for (let i = this.cartas.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -94,7 +94,6 @@ class Mazo {
     }
   }
 
-  // Reparte (remueve y devuelve) la carta superior
   repartir() {
     if (this.cartas.length === 0) {
       this.crearMazo();
@@ -103,13 +102,11 @@ class Mazo {
     return this.cartas.pop();
   }
 
-  // Devuelve la cantidad de cartas restantes
   cartasRestantes() {
     return this.cartas.length;
   }
 }
-//######################################################################
-// Clase Jugador
+
 class Jugador {
   constructor(nombre, fichasIniciales = 1000) {
     this.nombre = nombre;
@@ -118,12 +115,10 @@ class Jugador {
     this.apuestaActual = 0;
   }
 
-  // Recibe una instancia de Carta y la guarda en su mano
   recibirCarta(carta) {
     this.mano.push(carta);
   }
 
-  // Calcula el total de puntos ajustando los Ases dinámicamente
   calcularPuntos() {
     let puntos = 0;
     let ases = 0;
@@ -135,7 +130,6 @@ class Jugador {
       puntos += carta.obtenerPuntos();
     }
 
-    // Si nos pasamos de 21 y tenemos Ases (que valen 11), les restamos 10 para que valgan 1
     while (puntos > 21 && ases > 0) {
       puntos -= 10;
       ases--;
@@ -144,17 +138,14 @@ class Jugador {
     return puntos;
   }
 
-  // Realiza la apuesta si cuenta con las fichas suficientes
   realizarApuesta(monto) {
-    if (monto <= 0) return false;
-    if (monto > this.fichas) return false;
+    if (monto <= 0 || monto > this.fichas) return false;
 
     this.apuestaActual = monto;
     this.fichas -= monto;
     return true;
   }
 
-  // Se ejecuta al ganar la ronda (multiplicador 2 por defecto, 2.5 para Blackjack)
   ganarApuesta(multiplicador = 2) {
     const ganancia = Math.floor(this.apuestaActual * multiplicador);
     this.fichas += ganancia;
@@ -163,53 +154,78 @@ class Jugador {
     return premioNeto;
   }
 
-  // Devuelve la apuesta en caso de empate (Push)
   empatarApuesta() {
     this.fichas += this.apuestaActual;
     this.apuestaActual = 0;
   }
 
-  // Resetea la apuesta cuando se pierde la ronda
   perderApuesta() {
     const perdida = this.apuestaActual;
     this.apuestaActual = 0;
     return perdida;
   }
 
-  // Vacía la mano para iniciar una nueva ronda
   limpiarMano() {
     this.mano = [];
   }
 }
 
-//######################################################################
-// Clase Crupier
 class Crupier extends Jugador {
   constructor() {
-    super("Crupier", 0); // Nombre fijo, no requiere fichas
+    super("Crupier", 0);
   }
 
-  // Regla del casino: debe pedir carta mientras tenga 16 o menos
   debePedir() {
     return this.calcularPuntos() < 17;
   }
 
-  // Calcula el puntaje considerando solo la primera carta visible
-  // (mientras la segunda permanece boca abajo durante el turno del jugador)
   calcularPuntosVisibles() {
     if (this.mano.length === 0) return 0;
-    
-    // Si la primera carta es un As, vale 11
     return this.mano[0].obtenerPuntos();
   }
 }
-//######################################################################
-// cartel emergente Variables globales
+
+
+// =========================================================================
+// 2. VARIABLES DE ESTADO GLOBALES Y REFERENCIAS A LA INTERFAZ
+// =========================================================================
+
+let mazo;
+let jugador;
+let crupier;
+let gananciaSesion = 0;
+
+// Referencias del Cartel Emergente
 let cartelEmergente;
 let cartelTitulo;
 let cartelMensaje;
 let timerNotificacion;
 
+// Objeto UI para almacenar elementos del DOM
+const UI = {
+  textoFichas: null,
+  textoApuesta: null,
+  textoGananciaSesion: null,
+  puntosCrupier: null,
+  cartasCrupier: null,
+  puntosJugador: null,
+  cartasJugador: null,
+  contenedorApuestas: null,
+  inputApuesta: null,
+  btnApostar: null,
+  contenedorJuego: null,
+  btnPedir: null,
+  btnPlantarse: null,
+  btnVerRanking: null,
+  modalRanking: null,
+  cuerpoTablaRanking: null,
+  btnCerrarRanking: null
+};
+
+
+// =========================================================================
+// 3. COMPONENTE DE NOTIFICACIONES Y CARTEL EMERGENTE
+// =========================================================================
 
 function crearCartelUI(contenedorPadre) {
   cartelEmergente = document.createElement("div");
@@ -262,22 +278,18 @@ function pedirConfirmacion(titulo, mensaje) {
     cartelTitulo.textContent = titulo;
     cartelMensaje.textContent = mensaje;
 
-    // Creación de contenedor de acciones
     const contenedorBotones = document.createElement("div");
     contenedorBotones.classList.add("cartel-acciones");
 
-    // Botón Confirmar
     const btnConfirmar = document.createElement("button");
     btnConfirmar.id = "btn-confirmar-cartel";
     btnConfirmar.classList.add("btn-accion");
     btnConfirmar.textContent = "Confirmar";
 
-    // Botón Cancelar
     const btnCancelar = document.createElement("button");
     btnCancelar.id = "btn-cancelar-cartel";
     btnCancelar.classList.add("btn-accion", "borrar");
     btnCancelar.textContent = "Cancelar";
-
 
     contenedorBotones.appendChild(btnConfirmar);
     contenedorBotones.appendChild(btnCancelar);
@@ -297,45 +309,13 @@ function pedirConfirmacion(titulo, mensaje) {
   });
 }
 
-// ==========================================
-// REFERENCIAS GLOBALES DE LA INTERFAZ (UI)
-// ==========================================
-const UI = {
-  // Estadísticas del jugador
-  textoFichas: null,
-  textoApuesta: null,
-  textoGananciaSesion: null,
 
-  // Zona del Crupier
-  puntosCrupier: null,
-  cartasCrupier: null,
+// =========================================================================
+// 4. CONSTRUCCIÓN Y GENERACIÓN DEL DOM (ESTRUCTURA HTML)
+// =========================================================================
 
-  // Zona del Jugador
-  puntosJugador: null,
-  cartasJugador: null,
-
-  // Controles de Apuestas
-  contenedorApuestas: null,
-  inputApuesta: null,
-  btnApostar: null,
-
-  // Controles de Jugada
-  contenedorJuego: null,
-  btnPedir: null,
-  btnPlantarse: null,
-
-  // Ranking y Modales
-  btnVerRanking: null,
-  modalRanking: null,
-  cuerpoTablaRanking: null,
-  btnCerrarRanking: null
-};
-
-// ==========================================
-// CREACIÓN DE LA ESTRUCTURA HTML DESDE JS
-// ==========================================
 function inicializarInterfaz(contenedorApp) {
-  // 1. ENCABEZADO (HEADER)
+  // 1. Encabezado (Header)
   const header = document.createElement("header");
   header.classList.add("header-juego");
 
@@ -369,11 +349,11 @@ function inicializarInterfaz(contenedorApp) {
   header.appendChild(titulo);
   header.appendChild(panelEstadisticas);
 
-  // 2. TABLERO DE JUEGO (MESA)
+  // 2. Tablero de Juego (Mesa)
   const mesa = document.createElement("main");
   mesa.classList.add("mesa-juego");
 
-  // --- Zona Crupier ---
+  // Zona Crupier
   const zonaCrupier = document.createElement("section");
   zonaCrupier.classList.add("zona-tablero");
 
@@ -396,7 +376,7 @@ function inicializarInterfaz(contenedorApp) {
   zonaCrupier.appendChild(infoCrupier);
   zonaCrupier.appendChild(UI.cartasCrupier);
 
-  // --- Zona Jugador ---
+  // Zona Jugador
   const zonaJugador = document.createElement("section");
   zonaJugador.classList.add("zona-tablero");
 
@@ -422,11 +402,11 @@ function inicializarInterfaz(contenedorApp) {
   mesa.appendChild(zonaCrupier);
   mesa.appendChild(zonaJugador);
 
-  // 3. PANEL DE CONTROLES
+  // 3. Panel de Controles
   const panelControles = document.createElement("footer");
   panelControles.classList.add("panel-controles");
 
-  // --- Controles de Apuesta ---
+  // Controles de Apuesta
   UI.contenedorApuestas = document.createElement("div");
   UI.contenedorApuestas.classList.add("grupo-controles");
 
@@ -448,9 +428,9 @@ function inicializarInterfaz(contenedorApp) {
   UI.contenedorApuestas.appendChild(UI.inputApuesta);
   UI.contenedorApuestas.appendChild(UI.btnApostar);
 
-  // --- Controles de Jugada (Hit/Stand) ---
+  // Controles de Jugada (Pedir / Plantarse)
   UI.contenedorJuego = document.createElement("div");
-  UI.contenedorJuego.classList.add("grupo-controles", "oculto"); // Oculto al inicio
+  UI.contenedorJuego.classList.add("grupo-controles", "oculto");
 
   UI.btnPedir = document.createElement("button");
   UI.btnPedir.classList.add("btn-accion", "btn-pedir");
@@ -466,19 +446,16 @@ function inicializarInterfaz(contenedorApp) {
   panelControles.appendChild(UI.contenedorApuestas);
   panelControles.appendChild(UI.contenedorJuego);
 
-  // 4. CREAR MODAL DEL RANKING
+  // Modales y Notificaciones
   crearModalRanking(contenedorApp);
-
-  // 5. CREAR CARTEL EMERGENTE (Notificaciones)
   crearCartelUI(contenedorApp);
 
-  // ENSAMBLAR TODO DENTRO DE <div id="app"></div>
+  // Ensamblado final
   contenedorApp.appendChild(header);
   contenedorApp.appendChild(mesa);
   contenedorApp.appendChild(panelControles);
 }
 
-// Sub-función para armar la ventana Modal del Ranking
 function crearModalRanking(contenedorPadre) {
   UI.modalRanking = document.createElement("div");
   UI.modalRanking.classList.add("modal-overlay", "oculto");
@@ -518,3 +495,349 @@ function crearModalRanking(contenedorPadre) {
   UI.modalRanking.appendChild(modalContenido);
   contenedorPadre.appendChild(UI.modalRanking);
 }
+
+
+// =========================================================================
+// 5. MÓDULO DE PERSISTENCIA Y RANKING (LOCALSTORAGE)
+// =========================================================================
+
+const CLAVE_LOCALSTORAGE = "blackjack_ranking_top";
+
+function obtenerRanking() {
+  const datos = localStorage.getItem(CLAVE_LOCALSTORAGE);
+  return datos ? JSON.parse(datos) : [];
+}
+
+function registrarPuntaje(nombreJugador, gananciaTotal) {
+  if (gananciaTotal <= 0) return;
+
+  const ranking = obtenerRanking();
+  const indiceExistente = ranking.findIndex(r => r.nombre.toLowerCase() === nombreJugador.toLowerCase());
+
+  if (indiceExistente !== -1) {
+    if (gananciaTotal > ranking[indiceExistente].puntuacion) {
+      ranking[indiceExistente].puntuacion = gananciaTotal;
+      ranking[indiceExistente].fecha = new Date().toLocaleDateString();
+    }
+  } else {
+    ranking.push({
+      nombre: nombreJugador,
+      puntuacion: gananciaTotal,
+      fecha: new Date().toLocaleDateString()
+    });
+  }
+
+  ranking.sort((a, b) => b.puntuacion - a.puntuacion);
+  const top5 = ranking.slice(0, 5);
+
+  localStorage.setItem(CLAVE_LOCALSTORAGE, JSON.stringify(top5));
+}
+
+function actualizarTablaRankingUI() {
+  UI.cuerpoTablaRanking.innerHTML = "";
+  const ranking = obtenerRanking();
+
+  if (ranking.length === 0) {
+    const filaVacia = document.createElement("tr");
+    const celdaVacia = document.createElement("td");
+    celdaVacia.setAttribute("colspan", "4");
+    celdaVacia.textContent = "Aún no hay puntajes registrados. ¡Sé el primero!";
+    celdaVacia.style.textAlign = "center";
+    filaVacia.appendChild(celdaVacia);
+    UI.cuerpoTablaRanking.appendChild(filaVacia);
+    return;
+  }
+
+  ranking.forEach((registro, index) => {
+    const fila = document.createElement("tr");
+
+    const tdPos = document.createElement("td");
+    tdPos.textContent = `#${index + 1}`;
+
+    const tdNombre = document.createElement("td");
+    tdNombre.textContent = registro.nombre;
+
+    const tdPuntos = document.createElement("td");
+    tdPuntos.textContent = `$${registro.puntuacion}`;
+
+    const tdFecha = document.createElement("td");
+    tdFecha.textContent = registro.fecha;
+
+    fila.appendChild(tdPos);
+    fila.appendChild(tdNombre);
+    fila.appendChild(tdPuntos);
+    fila.appendChild(tdFecha);
+
+    UI.cuerpoTablaRanking.appendChild(fila);
+  });
+}
+
+
+// =========================================================================
+// 6. LÓGICA Y CONTROLADOR DEL JUEGO
+// =========================================================================
+
+function inicializarJuego() {
+  mazo = new Mazo();
+  mazo.barajar();
+
+  jugador = new Jugador("Jugador 1", 1000);
+  crupier = new Crupier();
+
+  actualizarPantasEstadisticas();
+  configurarEventosUI();
+}
+
+function actualizarPantasEstadisticas() {
+  UI.textoFichas.textContent = `Fichas: $${jugador.fichas}`;
+  UI.textoApuesta.textContent = `Apuesta: $${jugador.apuestaActual}`;
+  UI.textoGananciaSesion.textContent = `Ganancia Sesión: $${gananciaSesion}`;
+}
+
+function procesarApuestaEIniciar() {
+  const valorInput = UI.inputApuesta.value.trim();
+  const monto = parseInt(valorInput);
+
+  if (valorInput === "" || isNaN(monto)) {
+    mostrarNotificacion("Error de Validación", "Por favor, ingresa un monto numérico válido.", 3000);
+    return;
+  }
+
+  if (monto <= 0) {
+    mostrarNotificacion("Apuesta Inválida", "La apuesta debe ser mayor a $0.", 3000);
+    return;
+  }
+
+  if (monto > jugador.fichas) {
+    mostrarNotificacion("Fichas Insuficientes", `No tienes suficientes fichas. Tu balance actual es $${jugador.fichas}.`, 3000);
+    return;
+  }
+
+  jugador.realizarApuesta(monto);
+  actualizarPantasEstadisticas();
+
+  iniciarRonda();
+}
+
+function iniciarRonda() {
+  jugador.limpiarMano();
+  crupier.limpiarMano();
+  UI.cartasJugador.innerHTML = "";
+  UI.cartasCrupier.innerHTML = "";
+
+  UI.contenedorApuestas.classList.add("oculto");
+  UI.contenedorJuego.classList.remove("oculto");
+
+  jugador.recibirCarta(mazo.repartir());
+  crupier.recibirCarta(mazo.repartir());
+  jugador.recibirCarta(mazo.repartir());
+  crupier.recibirCarta(mazo.repartir());
+
+  renderizarManoJugador();
+  renderizarManoCrupier(true);
+
+  // Dentro de la función iniciarRonda():
+  if (jugador.calcularPuntos() === 21) {
+    mostrarNotificacion("¡BLACKJACK!", "¡Sumaste 21 en la repartición inicial!", 2500);
+    setTimeout(() => finalizarRonda("blackjack"), 1500);
+  }
+}
+
+function renderizarManoJugador() {
+  UI.cartasJugador.innerHTML = "";
+  jugador.mano.forEach(carta => {
+    UI.cartasJugador.appendChild(carta.crearElementoHTML(false));
+  });
+  UI.puntosJugador.textContent = `Puntos: ${jugador.calcularPuntos()}`;
+}
+
+function renderizarManoCrupier(ocultarSegunda = false) {
+  UI.cartasCrupier.innerHTML = "";
+
+  crupier.mano.forEach((carta, index) => {
+    const esOculta = ocultarSegunda && index === 1;
+    UI.cartasCrupier.appendChild(carta.crearElementoHTML(esOculta));
+  });
+
+  if (ocultarSegunda) {
+    UI.puntosCrupier.textContent = `Puntos: ${crupier.calcularPuntosVisibles()} + ?`;
+  } else {
+    UI.puntosCrupier.textContent = `Puntos: ${crupier.calcularPuntos()}`;
+  }
+}
+
+function configurarEventosUI() {
+  // Botón de apostar
+  UI.btnApostar.onclick = () => procesarApuestaEIniciar();
+
+  // Botones de juego
+  UI.btnPedir.onclick = () => pedirCarta();
+  UI.btnPlantarse.onclick = () => plantarse();
+
+  // Abrir y cerrar ranking
+  UI.btnVerRanking.onclick = () => {
+    actualizarTablaRankingUI();
+    UI.modalRanking.classList.remove("oculto");
+  };
+
+  UI.btnCerrarRanking.onclick = () => {
+    UI.modalRanking.classList.add("oculto");
+  };
+}
+
+// Acción del botón "Pedir Carta"
+function pedirCarta() {
+  const nuevaCarta = mazo.repartir();
+  jugador.recibirCarta(nuevaCarta);
+  renderizarManoJugador();
+
+  // Si el jugador se pasa de 21, pierde la mano inmediatamente
+  if (jugador.calcularPuntos() > 21) {
+    mostrarNotificacion("¡Te pasaste!", `Sumaste ${jugador.calcularPuntos()} puntos. Has perdido esta mano.`, 2500);
+    setTimeout(() => finalizarRonda("se_paso"), 1500);
+  }
+}
+
+// Acción del botón "Plantarse"
+function plantarse() {
+  // Deshabilitar botones durante el turno del crupier para evitar múltiples clics
+  UI.btnPedir.disabled = true;
+  UI.btnPlantarse.disabled = true;
+
+  turnoCrupier();
+}
+
+// Lógica automatizada del Crupier
+function turnoCrupier() {
+  // Revelar la segunda carta que estaba oculta
+  renderizarManoCrupier(false);
+
+  // El Crupier debe pedir carta mientras tenga 16 o menos
+
+  const intervaloCrupier = setInterval(() => {
+    if (crupier.debePedir()) {
+      crupier.recibirCarta(mazo.repartir());
+      renderizarManoCrupier(false);
+    } else {
+      clearInterval(intervaloCrupier);
+      evaluarGanador();
+    }
+  }, 800); // 800ms de intervalo entre carta y carta
+}
+
+// Compara las puntuaciones cuando el Crupier termina de jugar
+function evaluarGanador() {
+  const puntosJugador = jugador.calcularPuntos();
+  const puntosCrupier = crupier.calcularPuntos();
+
+  if (puntosCrupier > 21) {
+    finalizarRonda("crupier_se_paso");
+  } else if (puntosJugador > puntosCrupier) {
+    finalizarRonda("gana_jugador");
+  } else if (puntosCrupier > puntosJugador) {
+    finalizarRonda("gana_crupier");
+  } else {
+    finalizarRonda("empate");
+  }
+}
+
+// Maneja la resolución de la ronda, pagos, mensajes y actualización de estadísticas
+function finalizarRonda(resultado) {
+  let titulo = "";
+  let mensaje = "";
+
+  switch (resultado) {
+    case "blackjack":
+      const netoBJ = jugador.ganarApuesta(2.5); // Pago 3 a 2 (multiplicador 2.5x)
+      gananciaSesion += netoBJ;
+      titulo = " $$$ ¡BLACKJACK! $$$ ";
+      mensaje = `¡Increíble! Ganaste $${netoBJ}.`;
+      break;
+
+    case "se_paso":
+      const perdidaP = jugador.perderApuesta();
+      gananciaSesion -= perdidaP;
+      titulo = "¡Te pasaste!";
+      mensaje = `Superaste los 21 puntos. Perdiste $${perdidaP}.`;
+      break;
+
+    case "crupier_se_paso":
+      const netoCSP = jugador.ganarApuesta(2);
+      gananciaSesion += netoCSP;
+      titulo = "¡El Crupier se pasó!";
+      mensaje = `El Crupier sumó ${crupier.calcularPuntos()} puntos. ¡Ganaste $${netoCSP}!`;
+      break;
+
+    case "gana_jugador":
+      const netoGana = jugador.ganarApuesta(2);
+      gananciaSesion += netoGana;
+      titulo = "¡Ganaste la mano!";
+      mensaje = `${jugador.calcularPuntos()} pts vs ${crupier.calcularPuntos()} pts del Crupier. Ganaste $${netoGana}.`;
+      break;
+
+    case "gana_crupier":
+      const perdidaG = jugador.perderApuesta();
+      gananciaSesion -= perdidaG;
+      titulo = "Gana la Casa";
+      mensaje = `El Crupier gana con ${crupier.calcularPuntos()} pts vs tus ${jugador.calcularPuntos()} pts. Perdiste $${perdidaG}.`;
+      break;
+
+    case "empate":
+      jugador.empatarApuesta();
+      titulo = "Empate";
+      mensaje = `Ambos tienen ${jugador.calcularPuntos()} puntos. Se te devuelve la apuesta.`;
+      break;
+  }
+
+  // Actualizar estadísticas visuales
+  actualizarPantasEstadisticas();
+
+  // Si hubo ganancia en la sesión, registrar/actualizar el récord en LocalStorage
+  if (gananciaSesion > 0) {
+    registrarPuntaje(jugador.nombre, gananciaSesion);
+  }
+
+  // Volver a habilitar los botones para la siguiente ronda
+  UI.btnPedir.disabled = false;
+  UI.btnPlantarse.disabled = false;
+
+  mostrarNotificacion(titulo, mensaje, 3500);
+
+  // Verificar si el jugador se quedó sin fichas (Game Over)
+  if (jugador.fichas <= 0) {
+    setTimeout(() => {
+      pedirConfirmacion("GAME OVER 💸", "Te has quedado sin fichas. ¿Quieres reiniciar la sesión con $1000?").then((reinicio) => {
+        if (reinicio) {
+          gananciaSesion = 0;
+          jugador.fichas = 1000;
+          actualizarPantasEstadisticas();
+          volverAInterfazApuestas();
+        }
+      });
+    }, 3600);
+  } else {
+    // Retornar a la interfaz de apuestas para la siguiente mano
+    volverAInterfazApuestas();
+  }
+}
+
+function volverAInterfazApuestas() {
+  UI.contenedorJuego.classList.add("oculto");
+  UI.contenedorApuestas.classList.remove("oculto");
+}
+
+// =========================================================================
+// 7. PUNTO DE ENTRADA (INICIALIZACIÓN)
+// =========================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  const contenedorApp = document.getElementById("app");
+
+  if (contenedorApp) {
+    inicializarInterfaz(contenedorApp);
+    inicializarJuego();
+    console.log("¡Interfaz y lógica inicializadas correctamente!");
+  } else {
+    console.error("Error: No se encontró el elemento <div id='app'></div>.");
+  }
+});
