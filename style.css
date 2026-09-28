@@ -1,105 +1,397 @@
+/* =========================================================================
+   1. RESET Y ESTILOS GENERALES
+   ========================================================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+#app {
+  width: 100%;
+  max-width: 900px;
+  background-color: #1e293b;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  border: 1px solid #334155;
+}
+
+/* Clase de utilidad general para ocultar elementos */
 .oculto {
   display: none !important;
 }
 
+
+/* =========================================================================
+   2. ENCABEZADO Y PANEL DE ESTADÍSTICAS
+   ========================================================================= */
 .header-juego {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px;
-  background-color: #1b2838;
-  color: #ffffff;
+  background-color: #0f172a;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 2px solid #334155;
+}
+
+.header-juego h1 {
+  font-size: 1.8rem;
+  color: #f1f5f9;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
 }
 
 .panel-estadisticas {
   display: flex;
-  gap: 20px;
-  margin-top: 10px;
+  justify-content: center;
   align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .stat-item {
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #1e293b;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  color: #cbd5e1;
 }
 
 .stat-item.destacado {
-  color: #4caf50;
+  color: #4ade80;
+  border-color: #22c55e;
 }
 
+
+/* =========================================================================
+   3. TABLERO DE JUEGO (MESA VERDE)
+   ========================================================================= */
 .mesa-juego {
-  background-color: #0d5c3a; /* Verde casino */
-  min-height: 400px;
-  padding: 20px;
+  background: radial-gradient(circle, #15803d 0%, #166534 100%);
+  padding: 25px;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 25px;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
 }
 
 .zona-tablero {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   padding: 15px;
-  border-radius: 8px;
 }
 
 .info-zona {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.info-zona h2 {
+  font-size: 1.2rem;
+  color: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-puntos {
+  background-color: #0f172a;
+  color: #fbbf24;
+  font-weight: bold;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  border: 1px solid #fbbf24;
 }
 
 .contenedor-cartas {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  min-height: 120px;
+  min-height: 110px;
+  align-items: center;
 }
 
+
+/* =========================================================================
+   4. DISEÑO Y ESTILOS DE LAS CARTAS
+   ========================================================================= */
+.carta {
+  width: 75px;
+  height: 110px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px;
+  position: relative;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.carta:hover {
+  transform: translateY(-4px);
+}
+
+.carta.roja {
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.carta.negra {
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+.carta-valor {
+  font-size: 0.95rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.carta-valor.top {
+  align-self: flex-start;
+}
+
+.carta-valor.bottom {
+  align-self: flex-end;
+  transform: rotate(180deg);
+}
+
+.carta-palo {
+  font-size: 1.8rem;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Reverso de la Carta Oculta (Estilo o Imagen) */
+.carta.oculta {
+  background: repeating-linear-gradient(
+    45deg,
+    #1e3a8a,
+    #1e3a8a 10px,
+    #1e40af 10px,
+    #1e40af 20px
+  );
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+
+/* =========================================================================
+   5. PANEL DE CONTROLES Y BOTONES
+   ========================================================================= */
 .panel-controles {
-  background-color: #1b2838;
+  background-color: #0f172a;
   padding: 20px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  border-top: 2px solid #334155;
 }
 
 .grupo-controles {
   display: flex;
-  gap: 15px;
   align-items: center;
-}
-
-/* Modales y Carteles */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
 }
 
-.modal-contenido {
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 90%;
+.grupo-controles label {
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
-.cartel-emergente.oculto {
-  display: none;
+.input-apuesta {
+  width: 90px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  background-color: #1e293b;
+  color: #ffffff;
+  text-align: center;
+  outline: none;
 }
 
+.input-apuesta:focus {
+  border-color: #3b82f6;
+}
+
+/* Estilos de Botones */
+button {
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.btn-principal {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 1rem;
+}
+
+.btn-principal:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-secundario {
+  background-color: #334155;
+  color: #f8fafc;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
+.btn-secundario:hover {
+  background-color: #475569;
+}
+
+.btn-accion {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.btn-pedir {
+  background-color: #16a34a;
+}
+
+.btn-pedir:hover {
+  background-color: #15803d;
+}
+
+.btn-plantar {
+  background-color: #dc2626;
+}
+
+.btn-plantar:hover {
+  background-color: #b91c1c;
+}
+
+.btn-accion.borrar {
+  background-color: #64748b;
+}
+
+.btn-accion.borrar:hover {
+  background-color: #475569;
+}
+
+
+/* =========================================================================
+   6. CARTEL EMERGENTE (NOTIFICACIONES)
+   ========================================================================= */
 .cartel-emergente {
-  display: block;
-  /* El resto de tus estilos visuales (position, background, padding, etc.) */
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e293b;
+  color: #ffffff;
+  border: 2px solid #3b82f6;
+  border-radius: 10px;
+  padding: 20px 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  text-align: center;
+  min-width: 300px;
+  max-width: 90%;
+}
+
+.cartel-titulo {
+  color: #60a5fa;
+  margin-bottom: 8px;
+  font-size: 1.25rem;
+}
+
+.cartel-mensaje {
+  font-size: 1rem;
+  color: #e2e8f0;
 }
 
 .cartel-acciones {
   margin-top: 15px;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+
+/* =========================================================================
+   7. MODAL DEL RANKING
+   ========================================================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-contenido {
+  background-color: #1e293b;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  border: 1px solid #334155;
+}
+
+.modal-contenido h2 {
+  margin-bottom: 20px;
+  color: #fbbf24;
+}
+
+.tabla-ranking {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.tabla-ranking th,
+.tabla-ranking td {
+  padding: 10px;
+  border-bottom: 1px solid #334155;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.tabla-ranking th {
+  background-color: #0f172a;
+  color: #94a3b8;
+}
+
+.tabla-ranking tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
