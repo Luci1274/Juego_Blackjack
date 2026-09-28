@@ -296,3 +296,225 @@ function pedirConfirmacion(titulo, mensaje) {
     };
   });
 }
+
+// ==========================================
+// REFERENCIAS GLOBALES DE LA INTERFAZ (UI)
+// ==========================================
+const UI = {
+  // Estadísticas del jugador
+  textoFichas: null,
+  textoApuesta: null,
+  textoGananciaSesion: null,
+
+  // Zona del Crupier
+  puntosCrupier: null,
+  cartasCrupier: null,
+
+  // Zona del Jugador
+  puntosJugador: null,
+  cartasJugador: null,
+
+  // Controles de Apuestas
+  contenedorApuestas: null,
+  inputApuesta: null,
+  btnApostar: null,
+
+  // Controles de Jugada
+  contenedorJuego: null,
+  btnPedir: null,
+  btnPlantarse: null,
+
+  // Ranking y Modales
+  btnVerRanking: null,
+  modalRanking: null,
+  cuerpoTablaRanking: null,
+  btnCerrarRanking: null
+};
+
+// ==========================================
+// CREACIÓN DE LA ESTRUCTURA HTML DESDE JS
+// ==========================================
+function inicializarInterfaz(contenedorApp) {
+  // 1. ENCABEZADO (HEADER)
+  const header = document.createElement("header");
+  header.classList.add("header-juego");
+
+  const titulo = document.createElement("h1");
+  titulo.textContent = "♠ ♥ Blackjack 21 ♦ ♣";
+
+  const panelEstadisticas = document.createElement("div");
+  panelEstadisticas.classList.add("panel-estadisticas");
+
+  UI.textoFichas = document.createElement("span");
+  UI.textoFichas.classList.add("stat-item");
+  UI.textoFichas.textContent = "Fichas: $1000";
+
+  UI.textoApuesta = document.createElement("span");
+  UI.textoApuesta.classList.add("stat-item");
+  UI.textoApuesta.textContent = "Apuesta: $0";
+
+  UI.textoGananciaSesion = document.createElement("span");
+  UI.textoGananciaSesion.classList.add("stat-item", "destacado");
+  UI.textoGananciaSesion.textContent = "Ganancia Sesión: $0";
+
+  UI.btnVerRanking = document.createElement("button");
+  UI.btnVerRanking.classList.add("btn-secundario");
+  UI.btnVerRanking.textContent = "🏆 Ranking";
+
+  panelEstadisticas.appendChild(UI.textoFichas);
+  panelEstadisticas.appendChild(UI.textoApuesta);
+  panelEstadisticas.appendChild(UI.textoGananciaSesion);
+  panelEstadisticas.appendChild(UI.btnVerRanking);
+
+  header.appendChild(titulo);
+  header.appendChild(panelEstadisticas);
+
+  // 2. TABLERO DE JUEGO (MESA)
+  const mesa = document.createElement("main");
+  mesa.classList.add("mesa-juego");
+
+  // --- Zona Crupier ---
+  const zonaCrupier = document.createElement("section");
+  zonaCrupier.classList.add("zona-tablero");
+
+  const infoCrupier = document.createElement("div");
+  infoCrupier.classList.add("info-zona");
+
+  const tituloCrupier = document.createElement("h2");
+  tituloCrupier.textContent = "Crupier";
+
+  UI.puntosCrupier = document.createElement("span");
+  UI.puntosCrupier.classList.add("badge-puntos");
+  UI.puntosCrupier.textContent = "Puntos: ?";
+
+  infoCrupier.appendChild(tituloCrupier);
+  infoCrupier.appendChild(UI.puntosCrupier);
+
+  UI.cartasCrupier = document.createElement("div");
+  UI.cartasCrupier.classList.add("contenedor-cartas");
+
+  zonaCrupier.appendChild(infoCrupier);
+  zonaCrupier.appendChild(UI.cartasCrupier);
+
+  // --- Zona Jugador ---
+  const zonaJugador = document.createElement("section");
+  zonaJugador.classList.add("zona-tablero");
+
+  const infoJugador = document.createElement("div");
+  infoJugador.classList.add("info-zona");
+
+  const tituloJugador = document.createElement("h2");
+  tituloJugador.textContent = "Jugador";
+
+  UI.puntosJugador = document.createElement("span");
+  UI.puntosJugador.classList.add("badge-puntos");
+  UI.puntosJugador.textContent = "Puntos: 0";
+
+  infoJugador.appendChild(tituloJugador);
+  infoJugador.appendChild(UI.puntosJugador);
+
+  UI.cartasJugador = document.createElement("div");
+  UI.cartasJugador.classList.add("contenedor-cartas");
+
+  zonaJugador.appendChild(infoJugador);
+  zonaJugador.appendChild(UI.cartasJugador);
+
+  mesa.appendChild(zonaCrupier);
+  mesa.appendChild(zonaJugador);
+
+  // 3. PANEL DE CONTROLES
+  const panelControles = document.createElement("footer");
+  panelControles.classList.add("panel-controles");
+
+  // --- Controles de Apuesta ---
+  UI.contenedorApuestas = document.createElement("div");
+  UI.contenedorApuestas.classList.add("grupo-controles");
+
+  const labelApuesta = document.createElement("label");
+  labelApuesta.textContent = "Monto a Apostar: $";
+
+  UI.inputApuesta = document.createElement("input");
+  UI.inputApuesta.type = "number";
+  UI.inputApuesta.min = "10";
+  UI.inputApuesta.step = "10";
+  UI.inputApuesta.value = "50";
+  UI.inputApuesta.classList.add("input-apuesta");
+
+  UI.btnApostar = document.createElement("button");
+  UI.btnApostar.classList.add("btn-principal");
+  UI.btnApostar.textContent = "Repartir / Apostar";
+
+  UI.contenedorApuestas.appendChild(labelApuesta);
+  UI.contenedorApuestas.appendChild(UI.inputApuesta);
+  UI.contenedorApuestas.appendChild(UI.btnApostar);
+
+  // --- Controles de Jugada (Hit/Stand) ---
+  UI.contenedorJuego = document.createElement("div");
+  UI.contenedorJuego.classList.add("grupo-controles", "oculto"); // Oculto al inicio
+
+  UI.btnPedir = document.createElement("button");
+  UI.btnPedir.classList.add("btn-accion", "btn-pedir");
+  UI.btnPedir.textContent = "➕ Pedir Carta";
+
+  UI.btnPlantarse = document.createElement("button");
+  UI.btnPlantarse.classList.add("btn-accion", "btn-plantar");
+  UI.btnPlantarse.textContent = "✋ Plantarse";
+
+  UI.contenedorJuego.appendChild(UI.btnPedir);
+  UI.contenedorJuego.appendChild(UI.btnPlantarse);
+
+  panelControles.appendChild(UI.contenedorApuestas);
+  panelControles.appendChild(UI.contenedorJuego);
+
+  // 4. CREAR MODAL DEL RANKING
+  crearModalRanking(contenedorApp);
+
+  // 5. CREAR CARTEL EMERGENTE (Notificaciones)
+  crearCartelUI(contenedorApp);
+
+  // ENSAMBLAR TODO DENTRO DE <div id="app"></div>
+  contenedorApp.appendChild(header);
+  contenedorApp.appendChild(mesa);
+  contenedorApp.appendChild(panelControles);
+}
+
+// Sub-función para armar la ventana Modal del Ranking
+function crearModalRanking(contenedorPadre) {
+  UI.modalRanking = document.createElement("div");
+  UI.modalRanking.classList.add("modal-overlay", "oculto");
+
+  const modalContenido = document.createElement("div");
+  modalContenido.classList.add("modal-contenido");
+
+  const tituloRanking = document.createElement("h2");
+  tituloRanking.textContent = "🏆 Tabla de Mejores Puntajes";
+
+  const tabla = document.createElement("table");
+  tabla.classList.add("tabla-ranking");
+
+  const thead = document.createElement("thead");
+  const trHead = document.createElement("tr");
+
+  ["Posición", "Jugador", "Ganancia Máxima", "Fecha"].forEach(texto => {
+    const th = document.createElement("th");
+    th.textContent = texto;
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+
+  UI.cuerpoTablaRanking = document.createElement("tbody");
+
+  tabla.appendChild(thead);
+  tabla.appendChild(UI.cuerpoTablaRanking);
+
+  UI.btnCerrarRanking = document.createElement("button");
+  UI.btnCerrarRanking.classList.add("btn-secundario");
+  UI.btnCerrarRanking.textContent = "Cerrar";
+
+  modalContenido.appendChild(tituloRanking);
+  modalContenido.appendChild(tabla);
+  modalContenido.appendChild(UI.btnCerrarRanking);
+
+  UI.modalRanking.appendChild(modalContenido);
+  contenedorPadre.appendChild(UI.modalRanking);
+}
