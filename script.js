@@ -110,9 +110,99 @@ class Mazo {
 }
 //######################################################################
 // Clase Jugador
+class Jugador {
+  constructor(nombre, fichasIniciales = 1000) {
+    this.nombre = nombre;
+    this.fichas = fichasIniciales;
+    this.mano = [];
+    this.apuestaActual = 0;
+  }
 
+  // Recibe una instancia de Carta y la guarda en su mano
+  recibirCarta(carta) {
+    this.mano.push(carta);
+  }
+
+  // Calcula el total de puntos ajustando los Ases dinámicamente
+  calcularPuntos() {
+    let puntos = 0;
+    let ases = 0;
+
+    for (const carta of this.mano) {
+      if (carta.valor === "A") {
+        ases++;
+      }
+      puntos += carta.obtenerPuntos();
+    }
+
+    // Si nos pasamos de 21 y tenemos Ases (que valen 11), les restamos 10 para que valgan 1
+    while (puntos > 21 && ases > 0) {
+      puntos -= 10;
+      ases--;
+    }
+
+    return puntos;
+  }
+
+  // Realiza la apuesta si cuenta con las fichas suficientes
+  realizarApuesta(monto) {
+    if (monto <= 0) return false;
+    if (monto > this.fichas) return false;
+
+    this.apuestaActual = monto;
+    this.fichas -= monto;
+    return true;
+  }
+
+  // Se ejecuta al ganar la ronda (multiplicador 2 por defecto, 2.5 para Blackjack)
+  ganarApuesta(multiplicador = 2) {
+    const ganancia = Math.floor(this.apuestaActual * multiplicador);
+    this.fichas += ganancia;
+    const premioNeto = ganancia - this.apuestaActual;
+    this.apuestaActual = 0;
+    return premioNeto;
+  }
+
+  // Devuelve la apuesta en caso de empate (Push)
+  empatarApuesta() {
+    this.fichas += this.apuestaActual;
+    this.apuestaActual = 0;
+  }
+
+  // Resetea la apuesta cuando se pierde la ronda
+  perderApuesta() {
+    const perdida = this.apuestaActual;
+    this.apuestaActual = 0;
+    return perdida;
+  }
+
+  // Vacía la mano para iniciar una nueva ronda
+  limpiarMano() {
+    this.mano = [];
+  }
+}
 
 //######################################################################
+// Clase Crupier
+class Crupier extends Jugador {
+  constructor() {
+    super("Crupier", 0); // Nombre fijo, no requiere fichas
+  }
+
+  // Regla del casino: debe pedir carta mientras tenga 16 o menos
+  debePedir() {
+    return this.calcularPuntos() < 17;
+  }
+
+  // Calcula el puntaje considerando solo la primera carta visible
+  // (mientras la segunda permanece boca abajo durante el turno del jugador)
+  calcularPuntosVisibles() {
+    if (this.mano.length === 0) return 0;
+    
+    // Si la primera carta es un As, vale 11
+    return this.mano[0].obtenerPuntos();
+  }
+}
 //######################################################################
 // cartel emergente Variables globales
 let cartelEmergente;
