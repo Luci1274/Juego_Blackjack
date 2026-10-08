@@ -210,6 +210,7 @@ const UI = {
   cartasCrupier: null,
   puntosJugador: null,
   cartasJugador: null,
+  tituloJugador: null,
   contenedorApuestas: null,
   inputApuesta: null,
   btnApostar: null,
@@ -250,6 +251,13 @@ function limpiarBotonesCartel() {
   }
 }
 
+function limpiarInputCartel() {
+  const contenedorInput = cartelEmergente.querySelector(".cartel-input");
+  if (contenedorInput) {
+    contenedorInput.remove();
+  }
+}
+
 function mostrarNotificacion(titulo, mensaje, tiempo = 3000) {
   clearTimeout(timerNotificacion);
   limpiarBotonesCartel();
@@ -270,6 +278,58 @@ function ocultarNotificacion() {
   limpiarBotonesCartel();
 }
 
+function mostrarReglasIniciales() {
+  const textoReglas = 
+    "• Objetivo: Sumar 21 o ganar al Crupier sin pasarte.\n" +
+    "• Figuras (J, Q, K): Valen 10 pts | As: Vale 11 o 1.\n" +
+    "• Pedir: Pides otra carta | Plantarse: Te quedas con tus puntos.\n" +
+    "• Crupier: Pide cartas hasta sumar 17 o más.\n" +
+    "• Pagos: Victoria 2x | Blackjack 2.5x.";
+
+  mostrarNotificacion("🂠 Reglas Básicas", textoReglas, 6000);
+}
+
+function pedirNombre(titulo, mensaje) {
+  return new Promise((resolve) => {
+    clearTimeout(timerNotificacion);
+    
+    cartelTitulo.textContent = titulo;
+    cartelMensaje.textContent = mensaje;
+    
+    const contenedorInput = document.createElement("div");
+    contenedorInput.classList.add("cartel-input");
+
+    const inputNombre = document.createElement("input");
+    inputNombre.type = "text";
+    inputNombre.name = "input-nombre";
+    inputNombre.id = "input-nombre";
+    inputNombre.required = true;
+    inputNombre.placeholder = "EJ: Nacho";
+
+    const botonAceptar = document.createElement("button");
+    botonAceptar.classList.add("btn-accion", "confirmar");
+    botonAceptar.textContent = "Confirmar";
+    
+    contenedorInput.appendChild(inputNombre);
+    contenedorInput.appendChild(botonAceptar);
+    cartelEmergente.appendChild(contenedorInput);
+    
+    cartelEmergente.classList.remove("oculto");
+    
+    inputNombre.focus()
+
+    
+    botonAceptar.onclick = () => {
+      const nombreIngresado = inputNombre.value.trim();
+      const nombreFinal = nombreIngresado !== "" ? nombreIngresado : "Jugador 1";
+      
+      ocultarNotificacion();
+      resolve(nombreFinal);
+      limpiarInputCartel();
+    };
+  }) 
+}
+
 function pedirConfirmacion(titulo, mensaje) {
   return new Promise((resolve) => {
     clearTimeout(timerNotificacion);
@@ -283,13 +343,13 @@ function pedirConfirmacion(titulo, mensaje) {
 
     const btnConfirmar = document.createElement("button");
     btnConfirmar.id = "btn-confirmar-cartel";
-    btnConfirmar.classList.add("btn-accion");
-    btnConfirmar.textContent = "Confirmar";
+    btnConfirmar.classList.add("btn-accion", "confirmar");
+    btnConfirmar.textContent = "Reintentar";
 
     const btnCancelar = document.createElement("button");
     btnCancelar.id = "btn-cancelar-cartel";
     btnCancelar.classList.add("btn-accion", "borrar");
-    btnCancelar.textContent = "Cancelar";
+    btnCancelar.textContent = "Cambiar";
 
     contenedorBotones.appendChild(btnConfirmar);
     contenedorBotones.appendChild(btnCancelar);
@@ -308,7 +368,6 @@ function pedirConfirmacion(titulo, mensaje) {
     };
   });
 }
-
 
 // =========================================================================
 // 4. CONSTRUCCIÓN Y GENERACIÓN DEL DOM (ESTRUCTURA HTML)
@@ -435,6 +494,11 @@ function inicializarInterfaz(contenedorApp) {
   UI.btnPedir = document.createElement("button");
   UI.btnPedir.classList.add("btn-accion", "btn-pedir");
   UI.btnPedir.textContent = "➕ Pedir Carta";
+
+  if (UI.btnPedir.querySelector("button:disabled")) {
+    UI.btnPedir.disabled = false;
+    UI.btnPlantarse = false;
+  }
 
   UI.btnPlantarse = document.createElement("button");
   UI.btnPlantarse.classList.add("btn-accion", "btn-plantar");
@@ -577,12 +641,27 @@ function actualizarTablaRankingUI() {
 // 6. LÓGICA Y CONTROLADOR DEL JUEGO
 // =========================================================================
 
-function inicializarJuego() {
+async function inicializarJuego() {
   mazo = new Mazo();
   mazo.barajar();
 
-  jugador = new Jugador("Jugador 1", 1000);
+  const nombreJugador = await pedirNombre(
+    "Bienvenido a Blackjack",
+    "Por favor ingrese su nombre de jugador"
+  );
+
+  jugador = new Jugador(nombreJugador, 1000);
   crupier = new Crupier();
+
+  UI.tituloJugador = document.querySelector(".zona-tablero:nth-child(2) h2");
+  if (UI.tituloJugador) {
+    UI.tituloJugador.textContent = jugador.nombre;
+  }
+
+  mostrarNotificacion(
+    "Nombre registrado",
+    "Nombre registrado con exito",
+    3000);
 
   actualizarPantasEstadisticas();
   configurarEventosUI();
@@ -701,8 +780,7 @@ function pedirCarta() {
 // Acción del botón "Plantarse"
 function plantarse() {
   // Deshabilitar botones durante el turno del crupier para evitar múltiples clics
-  UI.btnPedir.disabled = true;
-  UI.btnPlantarse.disabled = true;
+  desactivarBotones();
 
   turnoCrupier();
 }
@@ -727,6 +805,7 @@ function turnoCrupier() {
 
 // Compara las puntuaciones cuando el Crupier termina de jugar
 function evaluarGanador() {
+  desactivarBotones();
   const puntosJugador = jugador.calcularPuntos();
   const puntosCrupier = crupier.calcularPuntos();
 
@@ -752,6 +831,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoBJ;
       titulo = " $$$ ¡BLACKJACK! $$$ ";
       mensaje = `¡Increíble! Ganaste $${netoBJ}.`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
 
     case "se_paso":
@@ -759,6 +839,7 @@ function finalizarRonda(resultado) {
       gananciaSesion -= perdidaP;
       titulo = "¡Te pasaste!";
       mensaje = `Superaste los 21 puntos. Perdiste $${perdidaP}.`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
 
     case "crupier_se_paso":
@@ -766,6 +847,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoCSP;
       titulo = "¡El Crupier se pasó!";
       mensaje = `El Crupier sumó ${crupier.calcularPuntos()} puntos. ¡Ganaste $${netoCSP}!`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
 
     case "gana_jugador":
@@ -773,6 +855,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoGana;
       titulo = "¡Ganaste la mano!";
       mensaje = `${jugador.calcularPuntos()} pts vs ${crupier.calcularPuntos()} pts del Crupier. Ganaste $${netoGana}.`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
 
     case "gana_crupier":
@@ -780,12 +863,14 @@ function finalizarRonda(resultado) {
       gananciaSesion -= perdidaG;
       titulo = "Gana la Casa";
       mensaje = `El Crupier gana con ${crupier.calcularPuntos()} pts vs tus ${jugador.calcularPuntos()} pts. Perdiste $${perdidaG}.`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
 
     case "empate":
       jugador.empatarApuesta();
       titulo = "Empate";
       mensaje = `Ambos tienen ${jugador.calcularPuntos()} puntos. Se te devuelve la apuesta.`;
+      mostrarNotificacion(titulo, mensaje, 3000)
       break;
   }
 
@@ -797,33 +882,45 @@ function finalizarRonda(resultado) {
     registrarPuntaje(jugador.nombre, gananciaSesion);
   }
 
-  // Volver a habilitar los botones para la siguiente ronda
-  UI.btnPedir.disabled = false;
-  UI.btnPlantarse.disabled = false;
-
   mostrarNotificacion(titulo, mensaje, 3500);
-
   // Verificar si el jugador se quedó sin fichas (Game Over)
   if (jugador.fichas <= 0) {
     setTimeout(() => {
-      pedirConfirmacion("GAME OVER 💸", "Te has quedado sin fichas. ¿Quieres reiniciar la sesión con $1000?").then((reinicio) => {
+      pedirConfirmacion("GAME OVER 💸", "Te has quedado sin fichas. ¿Quieres reiniciar con $1000 o quieres cambiar de sesion?").then((reinicio) => {
         if (reinicio) {
           gananciaSesion = 0;
           jugador.fichas = 1000;
           actualizarPantasEstadisticas();
           volverAInterfazApuestas();
+        } else {
+          gananciaSesion = 0;
+          jugador.fichas = 1000;
+          actualizarPantasEstadisticas();
+          volverAInterfazApuestas();
+          inicializarJuego();
         }
       });
     }, 3600);
   } else {
     // Retornar a la interfaz de apuestas para la siguiente mano
-    volverAInterfazApuestas();
-  }
+    volverAInterfazApuestas();}
+}
+
+function desactivarBotones() {
+  UI.btnPedir.disabled = true;
+  UI.btnPlantarse.disabled = true;
+}
+
+function activarBotones() {
+// Volver a habilitar los botones para la siguiente ronda
+  UI.btnPedir.disabled = false;
+  UI.btnPlantarse.disabled = false;
 }
 
 function volverAInterfazApuestas() {
   UI.contenedorJuego.classList.add("oculto");
   UI.contenedorApuestas.classList.remove("oculto");
+  activarBotones();
 }
 
 // =========================================================================
@@ -835,6 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (contenedorApp) {
     inicializarInterfaz(contenedorApp);
+    mostrarReglasIniciales();
     inicializarJuego();
     console.log("¡Interfaz y lógica inicializadas correctamente!");
   } else {

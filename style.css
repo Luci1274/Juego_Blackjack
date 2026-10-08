@@ -28,7 +28,6 @@ body {
   border: 1px solid #334155;
 }
 
-/* Clase de utilidad general para ocultar elementos */
 .oculto {
   display: none !important;
 }
@@ -277,6 +276,10 @@ button:active {
   color: #ffffff;
 }
 
+.btn-accion.confirmar {
+  background-color: #3b82f6;
+}
+
 .btn-pedir {
   background-color: #16a34a;
 }
@@ -394,4 +397,24 @@ button:active {
 
 .tabla-ranking tr:hover {
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+.cartel-input {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.cartel-input input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  background-color: #0f172a;
+  color: #ffffff;
+  outline: none;
+}
+
+.cartel-input input:focus {
+  border-color: #3b82f6;
 }
