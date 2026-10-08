@@ -772,6 +772,7 @@ function pedirCarta() {
 
   // Si el jugador se pasa de 21, pierde la mano inmediatamente
   if (jugador.calcularPuntos() > 21) {
+    desactivarBotones()
     mostrarNotificacion("¡Te pasaste!", `Sumaste ${jugador.calcularPuntos()} puntos. Has perdido esta mano.`, 2500);
     setTimeout(() => finalizarRonda("se_paso"), 1500);
   }
@@ -876,6 +877,7 @@ function finalizarRonda(resultado) {
 
   // Actualizar estadísticas visuales
   actualizarPantasEstadisticas();
+  activarBotones()
 
   // Si hubo ganancia en la sesión, registrar/actualizar el récord en LocalStorage
   if (gananciaSesion > 0) {
