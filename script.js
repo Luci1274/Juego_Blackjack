@@ -592,9 +592,9 @@ function registrarPuntaje(nombreJugador, gananciaTotal) {
   }
 
   ranking.sort((a, b) => b.puntuacion - a.puntuacion);
-  const top5 = ranking.slice(0, 5);
+  const top10 = ranking.slice(0, 9);
 
-  localStorage.setItem(CLAVE_LOCALSTORAGE, JSON.stringify(top5));
+  localStorage.setItem(CLAVE_LOCALSTORAGE, JSON.stringify(top10));
 }
 
 function actualizarTablaRankingUI() {
