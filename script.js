@@ -220,7 +220,8 @@ const UI = {
   btnVerRanking: null,
   modalRanking: null,
   cuerpoTablaRanking: null,
-  btnCerrarRanking: null
+  btnCerrarRanking: null,
+  overlayMensaje: null
 };
 
 
@@ -238,10 +239,15 @@ function crearCartelUI(contenedorPadre) {
   cartelMensaje = document.createElement("p");
   cartelMensaje.classList.add("cartel-mensaje");
 
+  UI.overlayMensaje = document.createElement("div");
+  UI.overlayMensaje.classList.add("modal-overlay", "oculto");
+
+  UI.overlayMensaje.appendChild(cartelEmergente);
+
   cartelEmergente.appendChild(cartelTitulo);
   cartelEmergente.appendChild(cartelMensaje);
-
-  contenedorPadre.appendChild(cartelEmergente);
+  
+  contenedorPadre.appendChild(UI.overlayMensaje);
 }
 
 function limpiarBotonesCartel() {
@@ -292,10 +298,11 @@ function mostrarReglasIniciales() {
 function pedirNombre(titulo, mensaje) {
   return new Promise((resolve) => {
     clearTimeout(timerNotificacion);
+    UI.overlayMensaje.classList.remove("oculto");
     
     cartelTitulo.textContent = titulo;
     cartelMensaje.textContent = mensaje;
-    
+
     const contenedorInput = document.createElement("div");
     contenedorInput.classList.add("cartel-input");
 
@@ -324,6 +331,7 @@ function pedirNombre(titulo, mensaje) {
       const nombreFinal = nombreIngresado !== "" ? nombreIngresado : "Jugador 1";
       
       ocultarNotificacion();
+      UI.overlayMensaje.classList.add("oculto");
       resolve(nombreFinal);
       limpiarInputCartel();
     };
@@ -333,6 +341,7 @@ function pedirNombre(titulo, mensaje) {
 function pedirConfirmacion(titulo, mensaje) {
   return new Promise((resolve) => {
     clearTimeout(timerNotificacion);
+    UI.overlayMensaje.classList.remove("oculto");
     limpiarBotonesCartel();
 
     cartelTitulo.textContent = titulo;
@@ -359,11 +368,13 @@ function pedirConfirmacion(titulo, mensaje) {
 
     btnConfirmar.onclick = () => {
       ocultarNotificacion();
+      UI.overlayMensaje.classList.add("oculto");
       resolve(true);
     };
 
     btnCancelar.onclick = () => {
       ocultarNotificacion();
+      UI.overlayMensaje.classList.add("oculto");
       resolve(false);
     };
   });
@@ -658,13 +669,9 @@ async function inicializarJuego() {
     UI.tituloJugador.textContent = jugador.nombre;
   }
 
-  mostrarNotificacion(
-    "Nombre registrado",
-    "Nombre registrado con exito",
-    3000);
-
   actualizarPantasEstadisticas();
   configurarEventosUI();
+  activarBotones()
 }
 
 function actualizarPantasEstadisticas() {
@@ -887,6 +894,7 @@ function finalizarRonda(resultado) {
   mostrarNotificacion(titulo, mensaje, 3500);
   // Verificar si el jugador se quedó sin fichas (Game Over)
   if (jugador.fichas <= 0) {
+    desactivarBotones()
     setTimeout(() => {
       pedirConfirmacion("GAME OVER 💸", "Te has quedado sin fichas. ¿Quieres reiniciar con $1000 o quieres cambiar de sesion?").then((reinicio) => {
         if (reinicio) {
@@ -902,21 +910,26 @@ function finalizarRonda(resultado) {
           inicializarJuego();
         }
       });
-    }, 3600);
+    }, 4000);
   } else {
     // Retornar a la interfaz de apuestas para la siguiente mano
     volverAInterfazApuestas();}
 }
 
 function desactivarBotones() {
+  // desabilita los botones para evitar trabar el juego
   UI.btnPedir.disabled = true;
   UI.btnPlantarse.disabled = true;
+  UI.inputApuesta = true;
+  UI.btnApostar = true;
 }
 
 function activarBotones() {
 // Volver a habilitar los botones para la siguiente ronda
   UI.btnPedir.disabled = false;
   UI.btnPlantarse.disabled = false;
+  UI.inputApuesta = false;
+  UI.btnApostar = false;
 }
 
 function volverAInterfazApuestas() {

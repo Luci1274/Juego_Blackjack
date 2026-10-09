@@ -310,7 +310,7 @@ button:active {
    ========================================================================= */
 .cartel-emergente {
   position: fixed;
-  top: 30px;
+  top: 250px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #1e293b;
