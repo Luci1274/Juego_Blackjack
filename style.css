@@ -8,9 +8,14 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html {
+  font-size: 17px;
+}
+
 body {
   background-color: #0f172a;
   color: #f8fafc;
+  font-size: 1.05rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -310,7 +315,7 @@ button:active {
    ========================================================================= */
 .cartel-emergente {
   position: fixed;
-  top: 250px;
+  top: 45%;
   left: 50%;
   transform: translateX(-50%);
   background-color: #1e293b;
@@ -334,6 +339,17 @@ button:active {
 .cartel-mensaje {
   font-size: 1rem;
   color: #e2e8f0;
+}
+
+.cartel-mensaje ul{
+  text-align: left;
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+.cartel-mensaje li{
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
 .cartel-acciones {
@@ -413,6 +429,7 @@ button:active {
   background-color: #0f172a;
   color: #ffffff;
   outline: none;
+  font-size: 0.95rem;
 }
 
 .cartel-input input:focus {

@@ -242,12 +242,13 @@ function crearCartelUI(contenedorPadre) {
   UI.overlayMensaje = document.createElement("div");
   UI.overlayMensaje.classList.add("modal-overlay", "oculto");
 
-  UI.overlayMensaje.appendChild(cartelEmergente);
-
   cartelEmergente.appendChild(cartelTitulo);
   cartelEmergente.appendChild(cartelMensaje);
-  
+
+  // El overlay no va con el con el cartel porque evita que se muestre
   contenedorPadre.appendChild(UI.overlayMensaje);
+
+  contenedorPadre.appendChild(cartelEmergente);
 }
 
 function limpiarBotonesCartel() {
@@ -269,7 +270,7 @@ function mostrarNotificacion(titulo, mensaje, tiempo = 3000) {
   limpiarBotonesCartel();
 
   cartelTitulo.textContent = titulo;
-  cartelMensaje.textContent = mensaje;
+  cartelMensaje.innerHTML = mensaje;
   cartelEmergente.classList.remove("oculto");
 
   if (tiempo > 0) {
@@ -285,13 +286,14 @@ function ocultarNotificacion() {
 }
 
 function mostrarReglasIniciales() {
-  const textoReglas = 
-    "• Objetivo: Sumar 21 o ganar al Crupier sin pasarte.\n" +
-    "• Figuras (J, Q, K): Valen 10 pts | As: Vale 11 o 1.\n" +
-    "• Pedir: Pides otra carta | Plantarse: Te quedas con tus puntos.\n" +
-    "• Crupier: Pide cartas hasta sumar 17 o más.\n" +
-    "• Pagos: Victoria 2x | Blackjack 2.5x.";
-
+  const textoReglas =
+    `<ul>
+      <li>Objetivo: Sumar 21 o ganar al Crupier sin pasarte.</li>
+      <li>Figuras (J, Q, K): Valen 10 pts | As: Vale 11 o 1.</li>
+      <li>Pedir: Pides otra carta | Plantarse: Te quedas con tus puntos.</li>
+      <li>Crupier: Pide cartas hasta sumar 17 o más.</li>
+      <li>Pagos: Victoria 2x | Blackjack 2.5x.</li>
+    </ul>`; 
   mostrarNotificacion("🂠 Reglas Básicas", textoReglas, 6000);
 }
 
@@ -669,9 +671,11 @@ async function inicializarJuego() {
     UI.tituloJugador.textContent = jugador.nombre;
   }
 
+  mostrarReglasIniciales();
+
+  activarBotones()
   actualizarPantasEstadisticas();
   configurarEventosUI();
-  activarBotones()
 }
 
 function actualizarPantasEstadisticas() {
@@ -910,7 +914,7 @@ function finalizarRonda(resultado) {
           inicializarJuego();
         }
       });
-    }, 4000);
+    }, 3600);
   } else {
     // Retornar a la interfaz de apuestas para la siguiente mano
     volverAInterfazApuestas();}
@@ -920,16 +924,16 @@ function desactivarBotones() {
   // desabilita los botones para evitar trabar el juego
   UI.btnPedir.disabled = true;
   UI.btnPlantarse.disabled = true;
-  UI.inputApuesta = true;
-  UI.btnApostar = true;
+  UI.inputApuesta.disabled = true;
+  UI.btnApostar.disabled = true;
 }
 
 function activarBotones() {
 // Volver a habilitar los botones para la siguiente ronda
   UI.btnPedir.disabled = false;
   UI.btnPlantarse.disabled = false;
-  UI.inputApuesta = false;
-  UI.btnApostar = false;
+  UI.inputApuesta.disabled = false;
+  UI.btnApostar.disabled = false;
 }
 
 function volverAInterfazApuestas() {
@@ -947,7 +951,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (contenedorApp) {
     inicializarInterfaz(contenedorApp);
-    mostrarReglasIniciales();
     inicializarJuego();
     console.log("¡Interfaz y lógica inicializadas correctamente!");
   } else {
