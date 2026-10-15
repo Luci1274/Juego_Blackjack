@@ -315,9 +315,9 @@ button:active {
    ========================================================================= */
 .cartel-emergente {
   position: fixed;
-  top: 45%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background-color: #1e293b;
   color: #ffffff;
   border: 2px solid #3b82f6;
@@ -357,6 +357,26 @@ button:active {
   display: flex;
   justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .cartel-emergente {
+    width: min(90vw, 360px);
+    min-width: 0;
+    padding: 18px 16px;
+  }
+
+  .cartel-input {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cartel-input input,
+  .cartel-input .btn-accion {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 

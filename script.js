@@ -294,7 +294,7 @@ function mostrarReglasIniciales() {
       <li>Crupier: Pide cartas hasta sumar 17 o más.</li>
       <li>Pagos: Victoria 2x | Blackjack 2.5x.</li>
     </ul>`; 
-  mostrarNotificacion("🂠 Reglas Básicas", textoReglas, 6000);
+  mostrarNotificacion("🂠 Reglas Básicas", textoReglas, 10000);
 }
 
 function pedirNombre(titulo, mensaje) {
@@ -689,17 +689,17 @@ function procesarApuestaEIniciar() {
   const monto = parseInt(valorInput);
 
   if (valorInput === "" || isNaN(monto)) {
-    mostrarNotificacion("Error de Validación", "Por favor, ingresa un monto numérico válido.", 3000);
+    mostrarNotificacion("Error de Validación", "Por favor, ingresa un monto numérico válido.", 7000);
     return;
   }
 
   if (monto <= 0) {
-    mostrarNotificacion("Apuesta Inválida", "La apuesta debe ser mayor a $0.", 3000);
+    mostrarNotificacion("Apuesta Inválida", "La apuesta debe ser mayor a $0.", 7000);
     return;
   }
 
   if (monto > jugador.fichas) {
-    mostrarNotificacion("Fichas Insuficientes", `No tienes suficientes fichas. Tu balance actual es $${jugador.fichas}.`, 3000);
+    mostrarNotificacion("Fichas Insuficientes", `No tienes suficientes fichas. Tu balance actual es $${jugador.fichas}.`, 7000);
     return;
   }
 
@@ -728,8 +728,7 @@ function iniciarRonda() {
 
   // Dentro de la función iniciarRonda():
   if (jugador.calcularPuntos() === 21) {
-    mostrarNotificacion("¡BLACKJACK!", "¡Sumaste 21 en la repartición inicial!", 2500);
-    setTimeout(() => finalizarRonda("blackjack"), 1500);
+    setTimeout(() => finalizarRonda("blackjack"), 500);
   }
 }
 
@@ -777,15 +776,16 @@ function configurarEventosUI() {
 
 // Acción del botón "Pedir Carta"
 function pedirCarta() {
+  desactivarBotones();
   const nuevaCarta = mazo.repartir();
   jugador.recibirCarta(nuevaCarta);
   renderizarManoJugador();
+  activarBotones();
 
   // Si el jugador se pasa de 21, pierde la mano inmediatamente
   if (jugador.calcularPuntos() > 21) {
     desactivarBotones()
-    mostrarNotificacion("¡Te pasaste!", `Sumaste ${jugador.calcularPuntos()} puntos. Has perdido esta mano.`, 2500);
-    setTimeout(() => finalizarRonda("se_paso"), 1500);
+    setTimeout(() => finalizarRonda("se_paso"), 500);
   }
 }
 
@@ -843,7 +843,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoBJ;
       titulo = " $$$ ¡BLACKJACK! $$$ ";
       mensaje = `¡Increíble! Ganaste $${netoBJ}.`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
 
     case "se_paso":
@@ -851,7 +851,7 @@ function finalizarRonda(resultado) {
       gananciaSesion -= perdidaP;
       titulo = "¡Te pasaste!";
       mensaje = `Superaste los 21 puntos. Perdiste $${perdidaP}.`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
 
     case "crupier_se_paso":
@@ -859,7 +859,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoCSP;
       titulo = "¡El Crupier se pasó!";
       mensaje = `El Crupier sumó ${crupier.calcularPuntos()} puntos. ¡Ganaste $${netoCSP}!`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
 
     case "gana_jugador":
@@ -867,7 +867,7 @@ function finalizarRonda(resultado) {
       gananciaSesion += netoGana;
       titulo = "¡Ganaste la mano!";
       mensaje = `${jugador.calcularPuntos()} pts vs ${crupier.calcularPuntos()} pts del Crupier. Ganaste $${netoGana}.`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
 
     case "gana_crupier":
@@ -875,14 +875,14 @@ function finalizarRonda(resultado) {
       gananciaSesion -= perdidaG;
       titulo = "Gana la Casa";
       mensaje = `El Crupier gana con ${crupier.calcularPuntos()} pts vs tus ${jugador.calcularPuntos()} pts. Perdiste $${perdidaG}.`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
 
     case "empate":
       jugador.empatarApuesta();
       titulo = "Empate";
       mensaje = `Ambos tienen ${jugador.calcularPuntos()} puntos. Se te devuelve la apuesta.`;
-      mostrarNotificacion(titulo, mensaje, 3000)
+      mostrarNotificacion(titulo, mensaje, 6000)
       break;
   }
 
